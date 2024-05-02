@@ -20,11 +20,10 @@ import cats.syntax.all.*
 import com.comcast.ip4s.*
 import org.http4s.HttpRoutes
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server.middleware.Logger
 import org.http4s.server.staticcontent.resourceServiceBuilder
 
 object DemoServer:
-  def resource(graphQLRoutes: HttpRoutes[IO]): Resource[IO, Unit] =
+  def run(graphQLRoutes: HttpRoutes[IO]): Resource[IO, Unit] =
     val httpApp = (
       // Routes for static resources, i.e. GraphQL Playground
       resourceServiceBuilder[IO]("/assets").toRoutes <+>

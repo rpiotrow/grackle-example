@@ -1,14 +1,14 @@
 package io.github.rpiotrow.grackleexample.graphql
 
 import _root_.doobie.{Meta, Transactor}
-import cats.effect.Sync
+import cats.effect.Async
 import cats.implicits.*
 import grackle.*
 import grackle.Predicate.*
 import grackle.Query.*
 import grackle.QueryCompiler.*
 import grackle.Value.*
-import grackle.doobie.postgres.{DoobieMapping, DoobieMonitor, LoggedDoobieMappingCompanion}
+import grackle.doobie.postgres.{DoobieMapping, DoobieMonitor}
 import grackle.syntax.*
 import io.circe.Json
 import io.github.rpiotrow.grackleexample.service.CurrencyService
@@ -16,6 +16,8 @@ import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 trait ExampleMapping[F[_]] extends DoobieMapping[F]:
+
+  def currencyService: CurrencyService[F]
 
   override val schema =
     schema"""
@@ -46,16 +48,15 @@ trait ExampleMapping[F[_]] extends DoobieMapping[F]:
       }
     """
 
-  private val QueryType = schema.ref("Query")
-  private val CountryType = schema.ref("Country")
-  private val CurrencyType = schema.ref("Currency")
+  private val QueryType        = schema.ref("Query")
+  private val CountryType      = schema.ref("Country")
+  private val CurrencyType     = schema.ref("Currency")
   private val CurrencyTypeType = schema.ref("CurrencyType")
   private val ExchangeRateType = schema.ref("ExchangeRate")
-  private val currencyService: CurrencyService[F] = CurrencyService.impl[F]
 
   private object country extends TableDef("country"):
-    val code: ColumnRef = col("code", Meta[String])
-    val name: ColumnRef = col("name", Meta[String])
+    val code: ColumnRef         = col("code", Meta[String])
+    val name: ColumnRef         = col("name", Meta[String])
     val currencyCode: ColumnRef = col("currency_code", Meta[String])
 
   override val typeMappings: List[TypeMapping] =
@@ -79,7 +80,7 @@ trait ExampleMapping[F[_]] extends DoobieMapping[F]:
   }
 
   private object CurrencyQueryHandler extends ExternalFetcher:
-    val fieldName = "currency_code"
+    val fieldName                             = "currency_code"
     def fetch(value: String): F[Option[Json]] = currencyService.getCurrencyInfo(value)
 
   private trait ExternalFetcher extends EffectHandler[F]:
@@ -103,11 +104,9 @@ trait ExampleMapping[F[_]] extends DoobieMapping[F]:
         }
         .map(_.sequence)
 
-object ExampleMapping extends LoggedDoobieMappingCompanion:
-
-  def mkMapping[F[_]: Sync](transactor: Transactor[F], monitor: DoobieMonitor[F]): ExampleMapping[F] =
-    new DoobieMapping(transactor, monitor) with ExampleMapping[F]
-
-  def mkMappingFromTransactor[F[_]: Sync](transactor: Transactor[F]): Mapping[F] =
-    implicit val logger: Logger[F] = Slf4jLogger.getLoggerFromName[F]("SqlQueryLogger")
-    mkMapping(transactor)
+object ExampleMapping:
+  def mkMappingFromTransactor[F[_]: Async](transactor: Transactor[F], currencyServiceImpl: CurrencyService[F]): Mapping[F] =
+    val logger: Logger[F]         = Slf4jLogger.getLoggerFromName[F]("SqlQueryLogger")
+    val monitor: DoobieMonitor[F] = DoobieMonitor.loggerMonitor[F](logger)
+    new DoobieMapping(transactor, monitor) with ExampleMapping[F]:
+      override val currencyService: CurrencyService[F] = currencyServiceImpl
