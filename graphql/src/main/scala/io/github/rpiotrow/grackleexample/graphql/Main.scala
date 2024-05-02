@@ -1,11 +1,10 @@
-package io.github.rpiotrow.grackleexample
+package io.github.rpiotrow.grackleexample.graphql
 
 import cats.effect.{ExitCode, IO, IOApp}
 import io.github.rpiotrow.grackleexample.currency.server.CurrencyServer
 import io.github.rpiotrow.grackleexample.db.LocalDatabase
-import io.github.rpiotrow.grackleexample.graphql.ExampleMapping
-import io.github.rpiotrow.grackleexample.service.CurrencyService
-import io.github.rpiotrow.grackleexample.web.{DemoServer, GraphQLService}
+import io.github.rpiotrow.grackleexample.graphql.mapping.ExampleMapping
+import io.github.rpiotrow.grackleexample.graphql.service.{CurrencyService, GraphQLService}
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =

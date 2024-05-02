@@ -1,4 +1,4 @@
-package io.github.rpiotrow.grackleexample.service
+package io.github.rpiotrow.grackleexample.graphql.service
 
 import cats.effect.{Async, Resource}
 import cats.implicits.given

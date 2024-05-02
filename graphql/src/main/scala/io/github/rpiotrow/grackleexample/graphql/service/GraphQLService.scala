@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.github.rpiotrow.grackleexample.web
+package io.github.rpiotrow.grackleexample.graphql.service
 
 import cats.effect.Concurrent
 import cats.syntax.all.*

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package io.github.rpiotrow.grackleexample.web
+package io.github.rpiotrow.grackleexample.graphql
 
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
@@ -24,18 +24,11 @@ import org.http4s.server.staticcontent.resourceServiceBuilder
 
 object DemoServer:
   def run(graphQLRoutes: HttpRoutes[IO]): Resource[IO, Unit] =
-    val httpApp = (
-      // Routes for static resources, i.e. GraphQL Playground
-      resourceServiceBuilder[IO]("/assets").toRoutes <+>
-        // GraphQL routes
-        graphQLRoutes
-    ).orNotFound
-
-    // Spin up the server ...
+    val staticRoutesForGraphQLPlayground = resourceServiceBuilder[IO]("/assets").toRoutes
     EmberServerBuilder
       .default[IO]
       .withHost(ip"0.0.0.0")
       .withPort(port"8080")
-      .withHttpApp(httpApp)
+      .withHttpApp((staticRoutesForGraphQLPlayground <+> graphQLRoutes).orNotFound)
       .build
       .void

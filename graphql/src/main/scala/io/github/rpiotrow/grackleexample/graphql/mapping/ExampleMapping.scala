@@ -1,4 +1,4 @@
-package io.github.rpiotrow.grackleexample.graphql
+package io.github.rpiotrow.grackleexample.graphql.mapping
 
 import _root_.doobie.{Meta, Transactor}
 import cats.effect.Async
@@ -11,7 +11,7 @@ import grackle.Value.*
 import grackle.doobie.postgres.{DoobieMapping, DoobieMonitor}
 import grackle.syntax.*
 import io.circe.Json
-import io.github.rpiotrow.grackleexample.service.CurrencyService
+import io.github.rpiotrow.grackleexample.graphql.service.CurrencyService
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
