@@ -1,25 +1,20 @@
-package io.github.rpiotrow.grackleexample
+package io.github.rpiotrow.grackleexample.db
 
-import cats.effect.{ExitCode, IO, IOApp, Resource}
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import doobie.hikari.HikariTransactor
 import io.chrisdavenport.whaletail.Docker
 import io.chrisdavenport.whaletail.manager.*
-import io.github.rpiotrow.grackleexample.graphql.ExampleMapping
-import io.github.rpiotrow.grackleexample.web.{DemoServer, GraphQLService}
 import org.flywaydb.core.Flyway
 
 import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.*
 
-object Main extends IOApp:
-  def run(args: List[String]): IO[ExitCode] =
-    DBSetup.run { xa =>
-      DemoServer.resource(GraphQLService.routes("api", GraphQLService.fromMapping(ExampleMapping.mkMappingFromTransactor(xa))))
-    }
+object LocalDatabase:
+  def run(body: HikariTransactor[IO] => Resource[IO, Unit]): IO[Nothing] =
+    container.evalTap(dbMigration).flatMap(transactor).flatMap(body).useForever
 
-object DBSetup:
   private val container: Resource[IO, PostgresConnectionInfo] = Docker
     .default[IO]
     .flatMap(client =>
@@ -47,9 +42,6 @@ object DBSetup:
     .map { case (host, port) =>
       PostgresConnectionInfo(host, port)
     }
-
-  def run(body: HikariTransactor[IO] => Resource[IO, Unit]): IO[Nothing] =
-    container.evalTap(dbMigration).flatMap(transactor).flatMap(body).useForever
 
   private def transactor(connInfo: PostgresConnectionInfo): Resource[IO, HikariTransactor[IO]] =
     import connInfo.*

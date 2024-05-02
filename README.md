@@ -3,5 +3,5 @@
 ### Usage
 
 ```bash
-sbt run
+sbt graphql/run
 ```
