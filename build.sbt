@@ -1,11 +1,12 @@
 val scala3Version = "3.3.1"
 
 val doobieVersion    = "1.0.0-RC5"
-val flywayVersion    = "10.1.0"
-val grackleVersion   = "0.17.0"
-val http4sVersion    = "0.23.24"
+val flywayVersion    = "10.11.0"
+val grackleVersion   = "0.18.1"
+val http4sVersion    = "0.23.26"
 val log4catsVersion  = "2.6.0"
-val logbackVersion   = "1.4.14"
+val logbackVersion   = "1.5.6"
+val sttpVersion      = "4.0.0-M13"
 val tapirVersion     = "1.10.6"
 val whaleTailVersion = "0.0.10"
 
@@ -73,8 +74,8 @@ lazy val graphql = project
       "org.http4s"                    %% "http4s-ember-client" % http4sVersion,
       "org.http4s"                    %% "http4s-circe"        % http4sVersion,
       "org.http4s"                    %% "http4s-dsl"          % http4sVersion,
-      "com.softwaremill.sttp.client4" %% "circe"               % "4.0.0-M13",
-      "com.softwaremill.sttp.client4" %% "cats"                % "4.0.0-M13"
+      "com.softwaremill.sttp.client4" %% "circe"               % sttpVersion,
+      "com.softwaremill.sttp.client4" %% "cats"                % sttpVersion
     )
   )
   .dependsOn(`currency-server`, `local-database`)
